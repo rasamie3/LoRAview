@@ -1,0 +1,9 @@
+transformers
+torch
+peft
+accelerate
+datasets
+bitsandbytes
+markdown2
+weasyprint
+pathlib 
