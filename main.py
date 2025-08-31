@@ -110,7 +110,8 @@ class MLInterviewAssistant:
                 })
             
             elif choice == "2":
-                question = input("Enter the question: ")
+                question = self.interview_functions.generate_question(practice=True)
+                print(f"{question}")
                 user_answer = input("Enter your answer: ")
                 print("\nGenerating review...")
                 review = self.interview_functions.review_answer(question, user_answer)

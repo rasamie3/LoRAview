@@ -4,7 +4,7 @@ from peft import PeftModel
 
 
 class ModelLoader:
-    def __init__(self, base_model_name="TinyLlama/TinyLlama-1.1B-Chat-v1.0", adapter_path="./tinyllama-lora-ftuned-adapted-v2/"):
+    def __init__(self, base_model_name="Qwen/Qwen2.5-0.5B-Instruct", adapter_path="./qwen-lora-ftuned-adapted/"):
         self.base_model_name = base_model_name
         self.adapter_path = adapter_path
         self.model = None

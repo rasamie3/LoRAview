@@ -6,14 +6,13 @@ class InterviewFunctions:
         self.chat_pipeline = chat_pipeline
     
     def generate_question(self, practice=False):
-        if practice:
-            prompt = "Generate a machine learning interview question:"
-        else:
-            prompt = "As an ML interviewer, ask one challenging machine learning question:"
-        
+        prompt = "As an ML interviewer, ask one challenging machine learning and provide detailed answer. question:"
         try:
-            response = self.chat_pipeline(prompt, max_new_tokens=256, temperature=0.8)
+            response = self.chat_pipeline(prompt)
+            
             result = response[0]["generated_text"].strip()
+            if practice:
+                result = result.split("?", 1)[0]
             return result
             
         except Exception as e:
@@ -68,7 +67,7 @@ class InterviewFunctions:
         prompt = f"""Review this ML interview answer:
         Question: {user_question}
         Candidate Answer: {user_answer}
-        Provide feedback on correctness, completeness, and clarity. Rate 1-10:
+        Rate the Cadidate answer from 0 to 10 and correct it if it's wrong:
         Review:"""
         
         try:
