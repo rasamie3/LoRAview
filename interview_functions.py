@@ -2,56 +2,71 @@ from datetime import datetime
 
 
 class InterviewFunctions:
-    def __init__(self, chat_pipeline):
+    def __init__(self, chat_pipeline, tokenizer):
         self.chat_pipeline = chat_pipeline
-    
+        self.tokenizer = tokenizer
+
+
     def generate_question(self, practice=False):
-        prompt = "As an ML interviewer, ask one challenging machine learning and provide detailed answer. question:"
+        """
+        Generates a question using k-shot (few-shot) prompting.
+        We provide k=2 examples to show the model the desired Q&A pattern.
+        """
+        
+        system_msg = "You are an experienced ML interviewer. Follow the pattern of the examples to generate one single, challenging machine learning interview question. Do not answer the question."
+        
+        # Define the k-shot examples (k=2)
+        # We show the model a fake conversation
+        examples = [
+            {
+                "role": "user", 
+                "content": "Give me a standard interview question."
+            },
+            {
+                "role": "assistant",
+                "content": "Can you explain the difference between L1 and L2 regularization and their respective effects on model weights?"
+            },
+            {
+                "role": "user",
+                "content": "Give me a more advanced one."
+            },
+            {
+                "role": "assistant",
+                "content": "Describe the architecture of a Transformer model. What is the self-attention mechanism, and why is it significant compared to older sequence-to-sequence models like RNNs?"
+            }
+        ]
+        
+        if practice:
+            final_user_msg = "Generate a new machine learning question for practice."
+        else:
+            final_user_msg = "Ask one new, challenging machine learning interview question."
+            
+        messages = [
+            {"role": "system", "content": system_msg}
+        ]
+        
+        messages.extend(examples) 
+        
+        messages.append({"role": "user", "content": final_user_msg})
+        
         try:
-            response = self.chat_pipeline(prompt)
+            prompt = self.tokenizer.apply_chat_template(
+                messages, 
+                tokenize=False, 
+                add_generation_prompt=True
+            )
+            
+            response = self.chat_pipeline(
+                prompt,
+                max_new_tokens=70  
+            )
             
             result = response[0]["generated_text"].strip()
-            if practice:
-                result = result.split("?", 1)[0]
             return result
             
         except Exception as e:
             print(f"ERROR in generate_question: {e}")
             return "Error generating question"
-    
-    def generate_question_alternative(self, practice=False):
-        system_msg = "You are an experienced ML interviewer."
-        if practice:
-            user_msg = "Generate a machine learning question for interview practice."
-        else:
-            user_msg = "Ask one challenging machine learning interview question."
-        
-        conversation = f"System: {system_msg}\nUser: {user_msg}\nAssistant:"
-        
-        try:
-            response = self.chat_pipeline(
-                conversation, 
-                max_new_tokens=256, 
-                temperature=0.8,
-                do_sample=True
-            )
-            result = response[0]["generated_text"].strip()
-            return result
-            
-        except Exception as e:
-            print(f"ERROR in generate_question_alternative: {e}")
-            return "Error generating question"
-    
-    def test_basic_generation(self):
-        simple_prompt = "What is Machine Learning?"
-        
-        try:
-            response = self.chat_pipeline(simple_prompt, max_new_tokens=50)
-            result = response[0]["generated_text"]
-            return result
-        except Exception as e:
-            print(f"ERROR in basic generation test: {e}")
-            return None
     
     def answer_question(self, user_question):
         prompt = f"Answer this machine learning question clearly and concisely:\n\nQuestion: {user_question}\n\nAnswer:"

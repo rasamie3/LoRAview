@@ -24,7 +24,8 @@ class MLInterviewAssistant:
         else:
             self.model_loader = ModelLoader()    
         chat_pipeline = self.model_loader.load_model()
-        self.interview_functions = InterviewFunctions(chat_pipeline)
+        tokenizer = self.model_loader.tokenizer
+        self.interview_functions = InterviewFunctions(chat_pipeline, tokenizer)
         print("Initialization complete!")
     
     def question_generation_mode(self):
@@ -88,7 +89,7 @@ class MLInterviewAssistant:
         
         while True:
             print("\nOptions:")
-            print("1. Ask a question and get answer")
+            print("1. Interactive Q&A session")
             print("2. Review your answer to a question")
             print("3. Interactive Q&A session")
             print("4. Save Q&A session")
@@ -96,12 +97,21 @@ class MLInterviewAssistant:
             
             choice = input("\nEnter your choice (1-5): ")
             
-            if choice == "1":
-                question = input("Enter your ML question: ")
-                print("\nGenerating answer...")
-                answer = self.interview_functions.answer_question(question)
-                print(f"\nAnswer: {answer}")
+            if choice == "1":    
+                print("=== Interactive Q&A Session ===")
+                print("Type 'quit' to exit, 'debug' for debugging")
                 
+                while True:
+                    question = input("Enter your ML question: ")
+                    if question.lower() == 'quit':
+                        break
+                    elif question.lower() == 'debug':
+                        self.debug_session()
+                        continue
+                    
+                    print("\nGenerating answer...")
+                    answer = self.answer_question(question)
+                    print(f"\nAnswer: {answer}")
                 # Save to session data
                 self.qa_session_data.append({
                     "question": question,
